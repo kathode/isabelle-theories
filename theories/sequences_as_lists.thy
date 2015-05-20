@@ -651,7 +651,7 @@ lemma length_t_minus_s__eq__length_t_minus_length_s:
   by (metis length_drop minusList_def)
 
 text {* Lemma 26 *}
-lemma
+lemma length_difA_t_s__eq__length_t_minus_length_s_plus_one:
   assumes "front(s)\<^sub>t <\<^sub>t t" and "length s > 0"
   shows "length(difA(t,s)\<^sub>t) = (length t - length s) + 1"
 proof -
@@ -669,6 +669,23 @@ proof -
       by (metis (erased, hide_lams) Suc_eq_plus1 Suc_pred `length (t -\<^sub>t front(s)\<^sub>t) = length t - length (front(s)\<^sub>t)` `length (t -\<^sub>t front(s)\<^sub>t) - 1 + 1 = length (t -\<^sub>t front(s)\<^sub>t)` diff_diff_left length_butlast monoid_add_class.add.left_neutral)
   finally show ?thesis .
 qed
+
+lemma difA_t_s__eq__list_u_v:
+  assumes "front(s)\<^sub>t <\<^sub>t t" and "length s > 0" and "fst(last(s)\<^sub>t) \<le>\<^sub>t fst(head(t -\<^sub>t front(s)\<^sub>t)\<^sub>t)"
+  shows "difA(t,s)\<^sub>t = [(u,v)] \<longleftrightarrow> (fst(head(t-\<^sub>t front(s)\<^sub>t)\<^sub>t) -\<^sub>t fst(last(s)\<^sub>t)) = u \<and> snd(head(t-\<^sub>tfront(s)\<^sub>t)\<^sub>t) = v \<and> tail(t-\<^sub>tfront(s)\<^sub>t)\<^sub>t = []"
+  by (metis (no_types, hide_lams) append_Nil append_Nil2 difA_def list.distinct(1) list.sel(1) list.sel(3) prod.inject tl_append2)
+
+text {* Corresponds to Lemma 15. *}
+lemma difA_t_s__eq__list_empty_snd_last_s__iff__t__eq__s:
+  assumes "front(s)\<^sub>t <\<^sub>t t" and "length s > 0" and "fst(last(s)\<^sub>t) \<le>\<^sub>t fst(head(t -\<^sub>t front(s)\<^sub>t)\<^sub>t)"
+  shows "difA(t,s)\<^sub>t = [([],snd(last(s)\<^sub>t))] \<longleftrightarrow> t=s"
+  using assms
+  apply (simp add:difA_t_s__eq__list_u_v)
+  apply auto
+  apply (smt2 append_Nil append_Nil2 append_butlast_last_id butlast.simps(1) butlast_tl length_greater_0_conv list.distinct(1) list.sel(1) list_minus_extended prod.expand sequence_prefix sequence_strict_prefix tl_append2)
+  apply (metis append_Nil2 append_butlast_last_id list.sel(1) list_minus_extended)
+  apply (metis append_butlast_last_id list.sel(1) list_minus_extended)
+  by (metis drop_eq_Nil length_butlast length_tl minusList_def order_refl tl_drop)
 
 text 
 {* The stuff below is an attempt at converting between lists and sets of ordered
