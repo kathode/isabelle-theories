@@ -10,7 +10,71 @@ imports
   Main
   Sublist
   Order
+  Finite_Set
 begin
+
+(* Using cases, based on a question by Samuel *)
+lemma 
+ shows "w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = w)"
+proof (cases "w = 5")
+  assume "w = 5"
+  show "w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = w)"
+  by auto
+
+next 
+  assume "w \<noteq> 5"
+  show "w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = w)"
+  by auto
+qed
+
+lemma 
+ shows "w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = w)"
+proof (cases "w = 5")
+  case True
+  show "w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = w)"
+  by auto
+
+next 
+  case False
+  show "w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = w)"
+  by auto
+qed
+
+lemma 
+ shows "w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = w)"
+proof (cases "w = 5")
+  assume "w = 5"
+  show "w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = w)"
+  proof -
+   have "(w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = w)) = (w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = 5))"
+   by auto
+   also have "... = (w = 5 \<longrightarrow> True)"
+   by auto
+   also have "... = True"
+   by auto
+  show ?thesis 
+  by auto
+qed
+next 
+  assume "w \<noteq> 5"
+  show "w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = w)"
+  proof -
+   have "(w = 5 \<longrightarrow> (x = 5 \<longrightarrow> x = w)) = (False \<longrightarrow> (x = 5 \<longrightarrow> x = w))"
+   by auto
+   show ?thesis
+  by auto
+ qed
+qed
+
+
+definition X0 :: "nat \<Rightarrow> nat \<Rightarrow> bool" where "X0 x y = (10 * x + y = y)"
+definition X1 :: "nat \<Rightarrow> nat \<Rightarrow> bool" where "X1 x y = (y - 5 * y * 3 + 3 = x)"
+
+value "x = 1 \<and> (X0 x y) \<and> (X1 x y)"
+
+lemma shows "\<exists>x y. (X0 x y) \<and> (X1 x y) \<and> x = 1"
+oops
+term "\<exists>x y z. (X0 x y) \<and> (X1 x y)"
 
 definition minusList :: "'a list \<Rightarrow> 'a list \<Rightarrow> 'a list" (infixr "-\<^sub>t" 64)
 where "minusList xs ys \<equiv> drop (length ys) xs" 
@@ -182,6 +246,9 @@ value "(fst(head([(1,2),(2,3)] -\<^sub>t front([(1,2),(2,3)])\<^sub>t)\<^sub>t),
 
 definition difA :: "('a, 'b) listPairs_List \<Rightarrow> ('a, 'b) listPairs_List  \<Rightarrow> ('a, 'b) listPairs_List" ("difA'(_,_')\<^sub>t" 67)
 where "difA t s \<equiv> [(fst(head(t -\<^sub>t front(s)\<^sub>t)\<^sub>t) -\<^sub>t fst(last(s)\<^sub>t),snd(head(t -\<^sub>t front(s)\<^sub>t)\<^sub>t))] ^\<^sub>t tail(t -\<^sub>t front(s)\<^sub>t)\<^sub>t"
+
+definition difloc :: "'a list => ('a, 'b) listPairs_List \<Rightarrow> ('a, 'b) listPairs_List  \<Rightarrow> ('a, 'b) listPairs_List" ("difloc'(_,_,_')" 68)
+where "difloc c t s \<equiv> [(c, snd(head(t -\<^sub>t front(s)\<^sub>t)\<^sub>t))] ^\<^sub>t tail(t-\<^sub>tfront(s)\<^sub>t)\<^sub>t"
 
 definition FlatA :: "('a, 'b) listPairs_List \<Rightarrow> 'a list" ("FlatA'(_')\<^sub>t" 66)
 where "FlatA tx \<equiv> concat (map fst tx)"
@@ -687,6 +754,96 @@ lemma difA_t_s__eq__list_empty_snd_last_s__iff__t__eq__s:
   apply (metis append_butlast_last_id list.sel(1) list_minus_extended)
   by (metis drop_eq_Nil length_butlast length_tl minusList_def order_refl tl_drop)
 
+lemma
+  assumes "length s > 0"
+  shows "front(s)\<^sub>t <\<^sub>t t \<longrightarrow> t = front(s)\<^sub>t ^\<^sub>t (t -\<^sub>t front(s)\<^sub>t)"
+  by (metis list_minus_extended sequence_strict_prefix)
+
+lemma front_s_lt_t__iff__t_eq_front_s_cat_t_minus_front_s:
+  assumes "length s > 0" and "length s \<le> length t"
+  shows "front(s)\<^sub>t <\<^sub>t t \<longleftrightarrow> t = front(s)\<^sub>t ^\<^sub>t (t -\<^sub>t front(s)\<^sub>t)"
+  by (metis One_nat_def Suc_pred assms(1) assms(2) length_butlast lessI list_minus_extended not_less prefix_def prefixeq_def)
+
+lemma
+  assumes "length s > 0"
+  shows "s \<le>\<^sub>t t \<longleftrightarrow> t = s ^\<^sub>t (t -\<^sub>t s)"
+  by (metis list_minus_extended prefixeq_def)
+
+text {* One needs to be careful with the treatment of subtraction for naturals,
+        otherwise length(tail(s)) = length(s) - 1, even without provisos. This
+        is acceptable for lists and in the context of HOL, but not for our 
+        representation of sequences. *}
+
+lemma
+  assumes "length s > 0"
+  shows "int(length(tail(s)\<^sub>t)) = int(length(s)) + (-1)"
+  using assms
+  by (auto, metis Nitpick.size_list_simp(2) One_nat_def add.commute eq_diff_eq length_tl of_nat_Suc)
+
+lemma
+  assumes "length s > 0"
+  shows "length(tail(s)\<^sub>t) = length(s) - 1"
+  using assms
+  by (simp add:nat_diff_split)
+
+lemma difA_t_lseq_s_rseq:
+  shows "difA(t,[s])\<^sub>t = [(fst(head(t)\<^sub>t) -\<^sub>t fst(s), snd(head(t)\<^sub>t))] ^\<^sub>t tail(t)\<^sub>t"
+  by (metis append_Nil butlast_snoc difA_def last_snoc list_minus_empty)
+
+lemma head_difloc: 
+  shows "head(difloc(c,t,s))\<^sub>t = (c, snd(head(t-\<^sub>tfront(s)\<^sub>t)\<^sub>t))"
+  by (metis append_Cons difloc_def list.sel(1))
+
+lemma tail_difloc:
+  shows "tail(difloc(c,t,s))\<^sub>t = tail(t-\<^sub>tfront(s)\<^sub>t)\<^sub>t"
+  by (metis append_Cons append_Nil difloc_def list.sel(3))
+
+lemma difA_difloc:
+  shows "difA(difloc(c,t,[s]),[s])\<^sub>t = [((c-\<^sub>tfst(s)),snd(head(t)\<^sub>t))] ^\<^sub>t tail(t)\<^sub>t"
+  by (metis (erased, hide_lams) append_Nil butlast_snoc difA_t_lseq_s_rseq fst_conv head_difloc list_minus_empty snd_conv tail_difloc)
+
+lemma difA_difloc_cts_seq_z:
+  shows "difA(difloc(c,t,s),[z])\<^sub>t = [(c -\<^sub>t fst(z), snd(head(t-\<^sub>tfront(s)\<^sub>t)\<^sub>t))] ^\<^sub>t tail(t-\<^sub>tfront(s)\<^sub>t)\<^sub>t"
+  by (metis append_Cons append_Nil difA_t_lseq_s_rseq difloc_def fst_conv list.sel(1) list.sel(3) snd_conv)
+
+lemma s_cat_t__minus__s_cat_z__eq__t_minus_z_no_proviso:
+  shows "(s ^\<^sub>t t) -\<^sub>t (s ^\<^sub>t z) = t -\<^sub>t z"
+  by (simp add:minusList_def)
+
+lemma difA_difloc__:
+  shows "difA(
+        difloc(FlatA(front(tr)\<^sub>t)\<^sub>t ^\<^sub>t fst(head(tr' -\<^sub>t front(tr)\<^sub>t)\<^sub>t),tr',tr),
+        [(FlatA(front(tr)\<^sub>t)\<^sub>t ^\<^sub>t fst(last(tr)\<^sub>t), snd(last(tr)\<^sub>t))]
+        )\<^sub>t
+        =
+        difA(tr',tr)\<^sub>t"
+   apply (simp add:difA_difloc_cts_seq_z)
+   apply (simp add:s_cat_t__minus__s_cat_z__eq__t_minus_z_no_proviso)
+   by (metis append_Cons append_Nil difA_def)
+
+lemma length_t_eq_length_s__land_front_s_lt_t__implies__front_s_eq_front_t:
+  shows "length t = length s \<and> front(s)\<^sub>t <\<^sub>t t \<longrightarrow> front(s)\<^sub>t = front(t)\<^sub>t"
+  by (metis (erased, hide_lams) append_butlast_last_id append_same_eq list_minus_extended prefix_bot.bot.not_eq_extremum prefix_order.dual_order.strict_trans sequence_strict_prefix t_minus_front_s__eq__last_t)
+
+lemma length_t_eq_length_s__land_front_s_lt_t__iff__front_s_eq_front_t:
+  assumes "length s > 0" and "length t > 0"
+  shows "length t = length s \<and> front(s)\<^sub>t <\<^sub>t t \<longleftrightarrow> front(s)\<^sub>t = front(t)\<^sub>t"
+  by (metis Suc_eq_plus1 Suc_pred append_butlast_last_id assms(1) assms(2) length_butlast length_greater_0_conv length_t_eq_length_s__land_front_s_lt_t__implies__front_s_eq_front_t list.distinct(1) monoid_add_class.add.left_neutral prefix_def prefixeq_def self_append_conv)
+
+lemma t__eq__s__iff__FlatA_eq_and_length_eq_and_fronts_lt_t_and_snd_last_eq:
+  assumes "length s > 0" and "length t > 0"
+  shows "FlatA(t)\<^sub>t = FlatA(s)\<^sub>t \<and> length t = length s \<and> front(s)\<^sub>t <\<^sub>t t \<and> snd(last(s)\<^sub>t) = snd(last(t)\<^sub>t)
+         \<longleftrightarrow>
+         t = s"
+  using assms
+  apply auto
+  apply (metis FlatA_s_non_empty__eq__FlatA_front_s_cat_fst_last_s append_butlast_last_id assms(1) length_t_eq_length_s__land_front_s_lt_t__implies__front_s_eq_front_t prod.collapse same_append_eq)
+  by (metis append_butlast_last_id list.distinct(1) prefix_def prefixeq_def self_append_conv)
+
+lemma shows "int(length []) = (int(length []) + (- 1))"
+oops
+  
+
 text 
 {* The stuff below is an attempt at converting between lists and sets of ordered
    pairs. The function definitions work, but there isn't much proved about them. *}
@@ -695,6 +852,98 @@ primrec listToSet :: "nat \<Rightarrow> 'a list \<Rightarrow> (nat \<times> 'a) 
 where
   "listToSet n [] = {}"
 | "listToSet n (x#xs) = {(n, x)} \<union> (listToSet (n+1) xs)"
+
+definition setMapFst :: "('a \<times> 'b) set \<Rightarrow> 'a set"
+ where "setMapFst xs = { x | x y. (x,y) \<in> xs}"
+
+lemma "sorted_list_of_set {1::nat,2} = [1,2]"
+ by auto
+
+lemma 
+ assumes "a < b"
+ shows "sorted_list_of_set {a,b} = [a,b]"
+ using assms
+ by auto
+
+lemma len_a__eq__len_b__implies__front_a__noteq__b:
+  shows "length a > 0 \<and> length a = length b \<longrightarrow> front(a)\<^sub>t \<noteq> b"
+  by (metis Suc_eq_plus1 Suc_pred length_butlast monoid_add_class.add.left_neutral n_not_Suc_n)
+ 
+lemma len_a__lt__len_b__implies__front_a__noteq__b:
+  shows "length a > 0 \<and> length a < length b \<longrightarrow> front(a)\<^sub>t \<noteq> b"
+  by (metis One_nat_def Suc_pred length_butlast lessI not_less_iff_gr_or_eq)
+
+lemma len_a__le__len_b__implies__front_a__noteq__b:
+  shows "length a > 0 \<and> length a \<le> length b \<longrightarrow> front(a)\<^sub>t \<noteq> b"
+  by (metis len_a__eq__len_b__implies__front_a__noteq__b len_a__lt__len_b__implies__front_a__noteq__b nat_less_le)
+
+lemma front_a_lt_b__resultof__length_a_lt_length_b_and_front_a_lt_b:
+  shows "length a > 0 \<and> length a \<le> length b \<and> front(a)\<^sub>t \<le>\<^sub>t b
+        \<longleftrightarrow>
+        length a > 0 \<and> length a \<le> length b \<and> front(a)\<^sub>t <\<^sub>t b"
+  by (metis len_a__le__len_b__implies__front_a__noteq__b prefix_def)
+
+definition setToList :: "('a \<times> 'b) set \<Rightarrow> 'b list"
+ where "Finite_Set.fold 
+
+value "{1,2}-{1}"
+
+value "set [0,0::nat]"
+
+schematic_lemma "set [0,0::nat] = ?x"
+by simp
+
+schematic_lemma "sorted_list_of_set {2,1,2,2,1} = ?x"
+by simp_all
+
+value "insort 2 (sorted_list_of_set ({1, 2, 1} - {2}))"
+
+value "Finite_Set.fold Set.remove {1,2} {1}"
+
+
+lemma "Finite_Set.fold Set.remove {1,2} {1} = {1,2}-{1}"
+ apply (simp add:Finite_Set.minus_fold_remove)
+
+value "fold f (\<lambda>x. x + 1) {1,2}"
+
+type_synonym 'b listNPairs = "(nat \<times> 'b) set ::linorder"
+value "sorted_list_of_set {(1,a),(2,b)}"
+
+value "fold insort []"
+
+function setToList :: "'a set \<Rightarrow> 'a list"
+ where "setToList {} = []"
+| "setToList {a} = [a]"
+| "setToList (xs \<union> ys) = setToList xs @ setToList ys"
+apply atomize_elim
+apply simp_all
+apply auto
+apply 
+(*
+function setMapFst :: "('a \<times> 'b) set \<Rightarrow> 'a set"
+ where
+  "setMapFst {} = {}"
+| "setMapFst {a} = {fst a}"
+| "setMapFst (xs \<union> {a::('a \<times> 'b)}) = {fst a} \<union> setMapFst (xs-{a})"
+apply atomize_elim
+apply simp_all
+apply (metis Set.set_insert old.prod.exhaust subsetI subset_empty)
+sledgehammer  
+apply auto
+sledgehammer
+termination by lexicographic_order
+ apply (induct) 
+ apply (auto)
+ sledgehammer
+*)
+(*| "setMapFst (xs\<union>{ax::('a \<times> 'b)}) = {fst ax} \<union> setMapFst xs"
+*)
+(*|"setMapFst xs = if (\<exists>a b. (a,b) \<in> xs) then (a \<union> (setMapFst (xs\<setminus>{(a,b)}))) else {}"
+*)
+primrec setToList :: "nat \<Rightarrow> (nat \<times> 'a) set \<Rightarrow> 'a list"
+  where
+  "setToList n {} = []"
+| "setToList n xs = \<exists>z y. (z,y) \<in> xs \<and> z = min(xs 
 
 definition set_to_list :: "(nat \<times> 'a) set \<Rightarrow> 'a list"
   where "set_to_list s = (SOME l. listToSet 1 l = s)"
