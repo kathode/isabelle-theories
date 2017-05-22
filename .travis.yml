@@ -2,4 +2,4 @@ install:
   - wget https://isabelle.in.tum.de/dist/Isabelle2016-1_app.tar.gz
   - tar -xzf Isabelle2016-1_app.tar.gz
 script:
-  - Isabelle2016-1/bin/isabelle build -d. -l UTP-IMPORTS
+  - Isabelle2016-1/bin/isabelle build -d. -l Test
