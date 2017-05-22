@@ -3,10 +3,9 @@ language: generic
 install: 
   - if [ ! -d "Isabelle2016-1" ] || [ -z "$(ls -A Isabelle2016-1)" ]; then wget https://isabelle.in.tum.de/dist/Isabelle2016-1_app.tar.gz; tar -xzf Isabelle2016-1_app.tar.gz; fi
   
-  
 cache:
   directories:
-    - Isabelle2016-1/*
+    - Isabelle2016-1
     
 script:
   - ls -la Isabelle2016-1
