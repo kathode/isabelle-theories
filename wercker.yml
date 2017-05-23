@@ -1,7 +1,6 @@
-
+box: unruh/isabelle
+      
 build:
-  box:
-      id: makarius/isabelle
   steps:
     - script:
         name: Build theory
