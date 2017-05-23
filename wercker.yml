@@ -1,4 +1,4 @@
-box: unruh/isabelle
+box: nodesource/trusty
       
 build:
   steps:
