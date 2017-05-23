@@ -1,5 +1,5 @@
 
-box: hub.docker.com/r/makarius/isabelle/
+box: makarius/isabelle/
 
 build:
   steps:
