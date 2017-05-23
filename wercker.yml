@@ -1,14 +1,9 @@
 
-box: debian
+box: makarius/isabelle
 
 build:
   steps:
     - script:
-        name: Cache management
+        name: Build theory
         code: |
-          if [ ! -d "$WERCKER_CACHE_DIR/Isabelle2016-1" ] || [ -z "$(ls -A $WERCKER_CACHE_DIR/Isabelle2016-1)" ]; then wget https://isabelle.in.tum.de/dist/Isabelle2016-1_app.tar.gz; tar -xzf Isabelle2016-1_app.tar.gz -C $WERCKER_CACHE_DIR; $WERCKER_CACHE_DIR/Isabelle2016-1/bin/isabelle build -l HOL; fi
-          
-    - script:
-        name: Isabelle build
-        code: |
-          $WERCKER_CACHE_DIR/Isabelle2016-1/bin/isabelle version
+          isabelle build -d. -l Test
