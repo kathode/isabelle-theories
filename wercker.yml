@@ -1,4 +1,4 @@
-box: makarius/isabelle
+box: peterzel/isabelle
       
 build:
   steps:
