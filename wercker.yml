@@ -1,4 +1,4 @@
-box: starefossen/ruby-node
+box: makarius/isabelle
       
 build:
   steps:
