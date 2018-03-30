@@ -9,4 +9,4 @@ before_install:
   - docker pull makarius/isabelle:Isabelle2017
   
 script:
-  - docker run --mount type=bind,source="$(pwd)",target=/repo,readonly makarius/isabelle:Isabelle2017 build -d /repo/kathode/isabelle-theories -l Test
+  - docker run --mount type=bind,source=$HOME,target=/repo,readonly makarius/isabelle:Isabelle2017 build -d /repo/kathode/isabelle-theories -l Test
