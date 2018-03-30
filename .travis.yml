@@ -10,4 +10,4 @@ before_install:
   
 script:
   - docker run -v kathode:/kathode makarius/isabelle:Isabelle2017 
-  - docker exec ls -l
+  - docker exec makarius/isabelle:Isabelle2017 ls -l
