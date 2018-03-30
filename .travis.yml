@@ -12,4 +12,4 @@ script:
   - bash -c 'echo $HOME'
   - bash -c 'echo $TRAVIS_BUILD_DIR'
   - bash -c 'ls -las'
-  - docker run --mount type=bind,source=$TRAVIS_BUILD_DIR,target=/repo,readonly makarius/isabelle:Isabelle2017 build -d /repo/kathode/isabelle-theories -l Test
+  - docker run --mount type=bind,source=$TRAVIS_BUILD_DIR,target=/repo,readonly makarius/isabelle:Isabelle2017 build -d /repo -l Test
