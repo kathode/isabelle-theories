@@ -1,12 +1,12 @@
 language: generic
 
-install: 
-  - if [ ! -d "Isabelle2016-1" ] || [ -z "$(ls -A Isabelle2016-1)" ]; then wget https://isabelle.in.tum.de/dist/Isabelle2016-1_app.tar.gz; tar -xzf Isabelle2016-1_app.tar.gz; Isabelle2016-1/bin/isabelle build -l HOL; fi
-  
-cache:
-  directories:
-    - Isabelle2016-1
-    
-script:
-  - Isabelle2016-1/bin/isabelle build -d. -l Test
+sudo: required
 
+services:
+  - docker
+  
+before_install:
+  - docker pull makarius/isabelle:Isabelle2017
+  
+script:
+  - docker run makarius/isabelle:Isabelle2017 -s -b Test
