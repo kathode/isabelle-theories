@@ -9,5 +9,4 @@ before_install:
   - docker pull makarius/isabelle:Isabelle2017
   
 script:
-  - docker run -v kathode:/kathode makarius/isabelle:Isabelle2017 
-  - docker exec makarius/isabelle:Isabelle2017 ls -l
+  - docker run -v kathode:/kathode --entrypoint "/bin/bash" makarius/isabelle:Isabelle2017 ls -l
